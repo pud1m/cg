@@ -93,9 +93,9 @@ class Raquete:
         self.y = self.yInicial
         return
 
-    def moverCima(self):
+    def moverCima(self, max, height):
 
-        if self.y + 12 > 650:
+        if self.y + 12 > max - int(height/3) :
             self.y = self.y
             return
         else:
@@ -103,9 +103,9 @@ class Raquete:
             print(self.y)
             return
 
-    def moverBaixo(self):
+    def moverBaixo(self, min, height):
 
-        if self.y - 12 < 0:
+        if self.y - 12 < min:
             self.y = self.y
             return
         else:

@@ -5,7 +5,7 @@ import sys
 from objects import Bola, bolaDir, Raquete
 from core import inicializa_jogo
 from colisao import colidiu_com_raquete, handle_colisao
-from utils import centraliza_tela
+from utils import centraliza_tela, set_field_size, ReadTexture
 from pynput.mouse import Button, Controller
 from math import *
 
@@ -21,14 +21,21 @@ tamanho_raquete = {
     'x': 50,
     'y': 150
 }
+tamanho_topbar = 100
 
 # Tela
 screen = { # Resolução do dispositivo
     'x': 1366,
     'y': 768
 }
-orthox = 1200
-orthoy = 600
+
+# Campo
+orthox = 10
+orthoy = 10
+
+orthos = set_field_size(screen, tamanho_topbar)
+orthox = orthos['x']
+orthoy = orthos['y']
 
 print('iniciando')
 # Inicializa as raquetes
@@ -52,17 +59,18 @@ def main():
     global orthox
     global orthoy
     global screen
+    global tamanho_topbar
 
     mouse = Controller()
     mouse.position = (1200, 400)
-    sc = centraliza_tela(screen, orthox, orthoy)
+    sc = centraliza_tela(screen, orthox, orthoy+tamanho_topbar)
 
     glutInit(sys.argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)
-    glutInitWindowSize(orthox,orthoy)
-    glutInitWindowPosition(sc['x'], sc['y'])
+    glutInitWindowSize(orthox,orthoy+tamanho_topbar)
+    glutInitWindowPosition(sc['x'], 0)
     glutCreateWindow(name)
-    glOrtho(0, orthox, 0, orthoy, -1, 1)
+    glOrtho(0, orthox, 0, orthoy+tamanho_topbar, -1, 1)
     glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF)
 
     glClearColor(0.,0.,0.,1.)
@@ -93,6 +101,7 @@ def desenha_cena():
 
     desenha_raquete(raq1)
     desenha_raquete(raq2)
+    desenha_placar()
 
     glFlush()
     glPopMatrix()
@@ -120,6 +129,23 @@ def desenha_bola():
         glVertex3f(va,vb,0)
     glEnd()
 
+    return
+
+
+def desenha_placar():
+    global orthox
+    global orthoy
+    global tamanho_topbar
+
+    tid = ReadTexture(None, 'stone.png')
+
+    glBindTexture(GL_TEXTURE_2D, tid)
+    glBegin(GL_POLYGON)
+    glVertex3f(0, orthoy+tamanho_topbar, 0)
+    glVertex3f(orthox, orthoy+tamanho_topbar, 0)
+    glVertex3f(orthox, orthoy, 0)
+    glVertex3f(0, orthoy, 0)
+    glEnd()
     return
 
 
@@ -201,18 +227,21 @@ def key_up(bkey, x, y):
 def atualiza_pos_raq():
     global raq1
     global raq2
+    global orthoy
+    global tamanho_topbar
+    global tamanho_raquete
     global botoes
 
     print('atualizando pos')
 
     if botoes['w']:
-        raq1.moverCima()
+        raq1.moverCima(orthoy-tamanho_topbar, tamanho_raquete['y'])
     if botoes['s']:
-        raq1.moverBaixo()
+        raq1.moverBaixo(0, tamanho_raquete['y'])
     if botoes['1']:
-        raq2.moverCima()
+        raq2.moverCima(orthoy-tamanho_topbar, tamanho_raquete['y'])
     if botoes['0']:
-        raq2.moverBaixo()
+        raq2.moverBaixo(0, tamanho_raquete['y'])
     
     mouse = Controller()
     mouse.position = (1200, 400)
@@ -226,7 +255,12 @@ def atualiza_pos_raq():
 
 def atualiza_pos_bola(valor):
     global gamebola
+    global orthox
+    global orthoy
+
     print('***************************************************')
+    print(orthox)
+    print(orthoy)
 
     if gamebola.direcao == 0:
         gamebola.direcao = 4
@@ -247,16 +281,20 @@ def checa_colisao():
     global orthox
     global orthoy
     
+    ################################################
+    ####### Colisão com a raquete
     # Esquerda/direita
     if 0 < gamebola.x <= tamanho_raquete['x']: # bola na esquerda
         if colidiu_com_raquete(raq1, gamebola, tamanho_raquete):
-            handle_colisao(raq1, gamebola, tamanho_raquete, orthox, orthoy, tamanho_bola, 'side')
-            return
+            if gamebola.direcao == 1 or gamebola.direcao == 2 or gamebola.direcao == 3:
+                handle_colisao(raq1, gamebola, tamanho_raquete, orthox, orthoy, tamanho_bola, 'side')
+                return
         
     if orthox - tamanho_raquete['x'] - tamanho_bola < gamebola.x + tamanho_bola >= orthox - tamanho_raquete['x']: # bola na direita
         if colidiu_com_raquete(raq2, gamebola, tamanho_raquete):
-            handle_colisao(raq2, gamebola, tamanho_raquete, orthox, orthoy, tamanho_bola, 'side')
-            return
+            if gamebola.direcao == 4 or gamebola.direcao == 5 or gamebola.direcao == 6:
+                handle_colisao(raq2, gamebola, tamanho_raquete, orthox, orthoy, tamanho_bola, 'side')
+                return
 
     # Topo/baixo
     if gamebola.y >= orthoy - 10:
@@ -265,6 +303,17 @@ def checa_colisao():
 
     if gamebola.y - 2*tamanho_bola <= 0:
         handle_colisao(raq1, gamebola, tamanho_raquete, orthox, orthoy, tamanho_bola, 'top')
+        return
+
+    ################################################
+    ####### Score   
+    if gamebola.x <= 0: # Bola na esquerda
+        gamebola.resetar()
+        gamebola.direcao = 4
+    
+    if gamebola.x >= orthox: # Bola na direita
+        gamebola.resetar()
+        gamebola.direcao = 1
 
     return
 
