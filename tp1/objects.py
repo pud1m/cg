@@ -81,11 +81,12 @@ class Bola:
 # Classe da raquete
 class Raquete:
     # Construtor
-    def __init__(self, xr, yr):
+    def __init__(self, xr, yr, vel):
         self.xInicial = xr
         self.yInicial = yr
         self.x = xr
         self.y = yr
+        self.velocidade = vel
 
     def resetar(self):
         self.x = self.xInicial
@@ -98,7 +99,7 @@ class Raquete:
             self.y = self.y
             return
         else:
-            self.y = self.y + 10
+            self.y = self.y + self.velocidade
             print(self.y)
             return
 
@@ -108,7 +109,7 @@ class Raquete:
             self.y = self.y
             return
         else:
-            self.y = self.y - 10
+            self.y = self.y - self.velocidade
             return
 
 

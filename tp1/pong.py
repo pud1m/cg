@@ -5,28 +5,35 @@ import sys
 from objects import Bola, bolaDir, Raquete
 from core import inicializa_jogo
 from colisao import colidiu_com_raquete, handle_colisao
+from utils import centraliza_tela
 from pynput.mouse import Button, Controller
 from math import *
 
+
+##################################################
 name = b'Thalles Sales - Pong'
 
 #Variáveis globais
-x = 20
-y = 20
-linhas = 3
-colunas = 3
-orthox = 1200
-orthoy = 800
 tamanho_bola = 15
-vel_bola = 6
+vel_bola = 1
+vel_raquete = 8
 tamanho_raquete = {
     'x': 50,
     'y': 150
 }
+
+# Tela
+screen = { # Resolução do dispositivo
+    'x': 1366,
+    'y': 768
+}
+orthox = 1200
+orthoy = 600
+
 print('iniciando')
 # Inicializa as raquetes
-raq1 = Raquete(5,0)
-raq2 = Raquete(orthox-5-tamanho_raquete['x'],0)
+raq1 = Raquete(5,0, vel_raquete)
+raq2 = Raquete(orthox-5-tamanho_raquete['x'],0, vel_raquete)
 
 # Inicializa a bola
 gamebola = Bola(orthox/2,(orthoy)/2, 5)
@@ -38,20 +45,22 @@ botoes = {
     '1': False,
     '0': False,
 }
-
+##################################################
 
 
 def main():
     global orthox
     global orthoy
+    global screen
 
     mouse = Controller()
     mouse.position = (1200, 400)
+    sc = centraliza_tela(screen, orthox, orthoy)
 
     glutInit(sys.argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)
     glutInitWindowSize(orthox,orthoy)
-    glutInitWindowPosition(800, 100)
+    glutInitWindowPosition(sc['x'], sc['y'])
     glutCreateWindow(name)
     glOrtho(0, orthox, 0, orthoy, -1, 1)
     glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF)
@@ -69,8 +78,6 @@ def main():
 #####################################
 # Desenhadores
 def desenha_cena():
-    global x
-    global y
     global gamebola
     global raq1
     global raq2
@@ -100,6 +107,11 @@ def desenha_bola():
     px = gamebola.x
     py = gamebola.y
 
+    print('render bola')
+    print(px)
+    print(py)
+
+
     lados = 32    
     glBegin(GL_POLYGON)    
     for i in range(100):    
@@ -116,10 +128,6 @@ def desenha_raquete(raq):
 
     px = raq.x
     py = raq.y
-
-    print('render raquete')
-    print(px)
-    print(py)
 
     glBegin(GL_POLYGON)
     glVertex3f(px, py, 0)
@@ -237,21 +245,26 @@ def checa_colisao():
     global tamanho_raquete
     global tamanho_bola
     global orthox
-
-    # Checa se a bola não está em uma posição que gera evento
-    if gamebola.x > tamanho_raquete['x']*1.1 and gamebola.x < orthox - tamanho_raquete['x']*1.1 - tamanho_bola:
-        return None
+    global orthoy
     
-    # Se ela estiver em posição que pode gerar evento:
-    if tamanho_bola < gamebola.x - tamanho_bola <= tamanho_raquete['x']: # bola na esquerda
+    # Esquerda/direita
+    if 0 < gamebola.x <= tamanho_raquete['x']: # bola na esquerda
         if colidiu_com_raquete(raq1, gamebola, tamanho_raquete):
-            handle_colisao(raq1, gamebola, tamanho_raquete, orthox, orthoy, tamanho_bola)
+            handle_colisao(raq1, gamebola, tamanho_raquete, orthox, orthoy, tamanho_bola, 'side')
             return
         
     if orthox - tamanho_raquete['x'] - tamanho_bola < gamebola.x + tamanho_bola >= orthox - tamanho_raquete['x']: # bola na direita
         if colidiu_com_raquete(raq2, gamebola, tamanho_raquete):
-            handle_colisao(raq1, gamebola, tamanho_raquete, orthox, orthoy, tamanho_bola)
+            handle_colisao(raq2, gamebola, tamanho_raquete, orthox, orthoy, tamanho_bola, 'side')
             return
+
+    # Topo/baixo
+    if gamebola.y >= orthoy - 10:
+        handle_colisao(raq1, gamebola, tamanho_raquete, orthox, orthoy, tamanho_bola, 'bottom')
+        return
+
+    if gamebola.y - 2*tamanho_bola <= 0:
+        handle_colisao(raq1, gamebola, tamanho_raquete, orthox, orthoy, tamanho_bola, 'top')
 
     return
 
