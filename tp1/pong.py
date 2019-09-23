@@ -2,12 +2,11 @@ from OpenGL.GLUT import *
 from OpenGL.GLU import *
 from OpenGL.GL import *
 import sys
-from random import random
 from objects import Bola, bolaDir, Raquete
 from core import inicializa_jogo
+from colisao import colidiu_com_raquete, handle_colisao
 from pynput.mouse import Button, Controller
-import sys
-
+from math import *
 
 name = b'Thalles Sales - Pong'
 
@@ -18,7 +17,8 @@ linhas = 3
 colunas = 3
 orthox = 1200
 orthoy = 800
-tamanho_bola = 30
+tamanho_bola = 15
+vel_bola = 6
 tamanho_raquete = {
     'x': 50,
     'y': 150
@@ -29,7 +29,7 @@ raq1 = Raquete(5,0)
 raq2 = Raquete(orthox-5-tamanho_raquete['x'],0)
 
 # Inicializa a bola
-gamebola = Bola(orthox/2,(orthoy)/2)
+gamebola = Bola(orthox/2,(orthoy)/2, 5)
 
 # Dict com os botões pressionados
 botoes = {
@@ -60,7 +60,7 @@ def main():
     glutDisplayFunc(desenha_cena)
     glutKeyboardFunc(key_press)
     glutKeyboardUpFunc(key_up)
-
+    glutTimerFunc(10,atualiza_pos_bola, 1)
 
     glutMainLoop()
     return
@@ -100,12 +100,14 @@ def desenha_bola():
     px = gamebola.x
     py = gamebola.y
 
-    glBegin(GL_POLYGON)
-    glVertex3f(px, py, 0)
-    glVertex3f(px, py+tamanho_bola, 0)
-    glVertex3f(px+tamanho_bola, py+tamanho_bola, 0)
-    glVertex3f(px+tamanho_bola, py, 0)
+    lados = 32    
+    glBegin(GL_POLYGON)    
+    for i in range(100):    
+        va = tamanho_bola * cos(i*2*pi/lados) + px    
+        vb = tamanho_bola * sin(i*2*pi/lados) + py    
+        glVertex3f(va,vb,0)
     glEnd()
+
     return
 
 
@@ -216,9 +218,51 @@ def atualiza_pos_raq():
 
 def atualiza_pos_bola(valor):
     global gamebola
+    print('***************************************************')
 
     if gamebola.direcao == 0:
         gamebola.direcao = 4
     gamebola.mover()
+    checa_colisao()
+    glutTimerFunc(10,atualiza_pos_bola, 1)
 
+    
+#####################################
+# Detecção de colisão
+
+def checa_colisao():
+    global gamebola
+    global raq1
+    global raq2
+    global tamanho_raquete
+    global tamanho_bola
+    global orthox
+
+    # Checa se a bola não está em uma posição que gera evento
+    if gamebola.x > tamanho_raquete['x']*1.1 and gamebola.x < orthox - tamanho_raquete['x']*1.1 - tamanho_bola:
+        return None
+    
+    # Se ela estiver em posição que pode gerar evento:
+    if tamanho_bola < gamebola.x - tamanho_bola <= tamanho_raquete['x']: # bola na esquerda
+        if colidiu_com_raquete(raq1, gamebola, tamanho_raquete):
+            handle_colisao(raq1, gamebola, tamanho_raquete, orthox, orthoy, tamanho_bola)
+            return
+        
+    if orthox - tamanho_raquete['x'] - tamanho_bola < gamebola.x + tamanho_bola >= orthox - tamanho_raquete['x']: # bola na direita
+        if colidiu_com_raquete(raq2, gamebola, tamanho_raquete):
+            handle_colisao(raq1, gamebola, tamanho_raquete, orthox, orthoy, tamanho_bola)
+            return
+
+    return
+
+
+
+
+
+
+
+
+
+
+# Força o loop    
 if __name__ == '__main__': main()

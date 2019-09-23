@@ -48,19 +48,3 @@ def inicializa_jogo():
 
 
 
-def atualiza_pos_raq(botoes):
-    global raq1
-    global raq2
-
-    print('atualizando pos')
-
-    if botoes['w']:
-        raq1.moverCima()
-    if botoes['s']:
-        raq1.moverBaixo()
-    if botoes['1']:
-        raq2.moverCima()
-    if botoes['0']:
-        raq2.moverBaixo()
-
-    return

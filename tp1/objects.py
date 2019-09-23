@@ -20,12 +20,17 @@ bolaDir = {
 # Classe da bola
 class Bola:
     # Construtor
-    def __init__(self, xr, yr):
+    def __init__(self, xr, yr, vel):
         self.xInicial = xr
         self.yInicial = yr
         self.x = xr
         self.y = yr
         self.direcao = bolaDir['stop']
+        self.velocidade = vel
+        self.coeficiente = {
+            'x': 1,
+            'y': 0
+        }
 
     # Reseta a bola
     def resetar(self):
@@ -38,30 +43,39 @@ class Bola:
         if self.direcao == bolaDir['stop']:
             return
         if self.direcao == bolaDir['esq']:
-            self.x = self.x - 1
+            vel = getVel2d(self.velocidade, self.coeficiente)
+            self.x = self.x - vel['x']
             return
         if self.direcao == bolaDir['dir']:
-            self.x = self.x + 1
+            vel = getVel2d(self.velocidade, self.coeficiente)
+            self.x = self.x + vel['x']
             return
 
         if self.direcao == bolaDir['esq_cima']:
-            self.x = self.x - 1
-            self.y = self.y - 1
+            vel = getVel2d(self.velocidade, self.coeficiente)
+            self.x = self.x - vel['x']
+            self.y = self.y - vel['y']
             return
         if self.direcao == bolaDir['esq_baixo']:
-            self.x = self.x - 1
-            self.y = self.y + 1
+            vel = getVel2d(self.velocidade, self.coeficiente)
+            self.x = self.x - vel['x']
+            self.y = self.y + vel['y']
             return
 
         if self.direcao == bolaDir['dir_cima']:
-            self.x = self.x + 1
-            self.y = self.y - 1
+            vel = getVel2d(self.velocidade, self.coeficiente)
+            self.x = self.x + vel['x']
+            self.y = self.y - vel['y']
             return
         if self.direcao == bolaDir['dir_baixo']:
-            self.x = self.x + 1
-            self.y = self.y + 1
+            vel = getVel2d(self.velocidade, self.coeficiente)
+            self.x = self.x + vel['x']
+            self.y = self.y + vel['y']
             return
         return
+    
+
+
         
 
 # Classe da raquete
@@ -96,3 +110,11 @@ class Raquete:
         else:
             self.y = self.y - 10
             return
+
+
+def getVel2d(velocidade, coeficiente):
+    resposta = {
+        'x': velocidade * coeficiente['x'],
+        'y': velocidade * coeficiente['y']
+    }
+    return resposta
