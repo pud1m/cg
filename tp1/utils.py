@@ -42,7 +42,7 @@ def ReadTexture(self, filename):
     # and other file types.  We convert into a texture using GL.
     print('trying to open', filename)
     try:
-        caminho = os.path.join(os.getcwd(), filename)
+        caminho = os.path.join(os.getcwd(), 'texturas', filename)
         #caminho = 'C:/Users/thalles.sales/cefet/cg/tp1/stone.png'
         image = Image.open(caminho)
         #image = image.convert("RGB")
@@ -68,16 +68,16 @@ def ReadTexture(self, filename):
 
 ##############################
 # Texto
-def marca_placar(x,y):
+def marca_placar(x,y, texto):
 
     glColor3f(0, 0, 0)
-    stringa = b'Testando'
+    stringa = str.encode(texto)
     byte_size = len(stringa)
     string = (ctypes.c_ubyte * byte_size).from_buffer_copy(stringa)
 
     glutBitmapLength(GLUT_BITMAP_HELVETICA_18, string)
 
-    glRasterPos2f(0, y)
+    glRasterPos2f(x, y)
 
     for c in string:
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c)

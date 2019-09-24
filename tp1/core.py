@@ -3,13 +3,18 @@ from objects import Raquete, Bola, bolaDir
 
 
 class GameCore:
-    def __init__(self, tw, th):
-        self.telaWidth = tw
-        self.telaHeight = th
+    def __init__(self):
         self.score = {
             '1': 0,
             '2': 0,
         }
+        self.sets = {
+            '1': 0,
+            '2': 0,
+        }
+        self.deuce = False
+        self.pausado = False
+        self.numOfSets = 5
         self.teclas = {
             '1': {
                 'cima': 0,
@@ -20,31 +25,21 @@ class GameCore:
                 'baixo': 0
             }
         }
-        self.sair = False
     
-    def comeca_jogo(self, bola, p1, p2):
-        bola.x = self.telaWidth/2
-        bola.y = self.telaHeight/2
+    def score(self, playerFor, playerAgainst):
+        if int(self.score[str(playerFor)]) == 9 and int(self.score[str(playerAgainst)]) == 10:
+            self.deuce = True
+            add_score(playerFor)
+            return
 
-        p1.x = 1
-        p1.y = self.telaHeight/2
-
-        p2.x = self.telaWidth - 1
-        p2.y = self.telaHeight/2
-
-
-def inicializa_jogo():
-    global gamebola
-    global raq1
-    global raq2
-
-    # Inicializa as raquetes
-    raq1 = Raquete(0,0)
-    raq2 = Raquete(0,0)
-
-    # Inicializa a bola
-    gamebola = Bola(0,0)
-    return
+        if self.deuce:
+            
 
 
+    def add_score(self, player):
+        self.score[str(player)] = int(self.score[str(player)]) + 1
+        return
 
+    def add_set(self, player):
+        self.sets[str(player)] = int(self.sets[str(player)]) + 1
+        return

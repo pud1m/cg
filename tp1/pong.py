@@ -113,7 +113,18 @@ def desenha_cena():
     desenha_raquete(raq1)
     desenha_raquete(raq2)
     desenha_placar()
-    marca_placar(0, orthoy+tamanho_topbar-30)
+
+    # Texto com título dos jogadores
+    marca_placar(orthox*0.01, orthoy+tamanho_topbar-30, str('Jogador 1'))
+    marca_placar(orthox*0.9, orthoy+tamanho_topbar-30, str('Jogador 2'))
+
+    # Pontuação dos jogadores no set
+    marca_placar(orthox*0.01, orthoy+tamanho_topbar-60, str('Pontos: 10'))
+    marca_placar(orthox*0.9, orthoy+tamanho_topbar-60, str('Pontos: 10'))
+
+    # Contador de sets
+    marca_placar(orthox*0.01, orthoy+tamanho_topbar-90, str('Sets: 10'))
+    marca_placar(orthox*0.9, orthoy+tamanho_topbar-90, str('Sets: 10'))
 
     glFlush()
     glPopMatrix()
