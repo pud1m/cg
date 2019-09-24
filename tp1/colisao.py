@@ -26,7 +26,7 @@ def handle_colisao(raq, gamebola, tamanho_raq, orthox, orthoy, tamanho_bola, cal
 
                 vy = 1/coeficiente_relativo
 
-                gamebola.direcao = 5
+                gamebola.direcao = 6
                 gamebola.coeficiente['y'] = vy
                 return
 
@@ -44,7 +44,7 @@ def handle_colisao(raq, gamebola, tamanho_raq, orthox, orthoy, tamanho_bola, cal
 
                 vy = 1/coeficiente_relativo
 
-                gamebola.direcao = 6
+                gamebola.direcao = 5
                 gamebola.coeficiente['y'] = vy
                 return
 
@@ -62,7 +62,7 @@ def handle_colisao(raq, gamebola, tamanho_raq, orthox, orthoy, tamanho_bola, cal
 
                 vy = 1/coeficiente_relativo
 
-                gamebola.direcao = 2
+                gamebola.direcao = 3
                 gamebola.coeficiente['y'] = vy
                 return
 
@@ -80,7 +80,7 @@ def handle_colisao(raq, gamebola, tamanho_raq, orthox, orthoy, tamanho_bola, cal
 
                 vy = 1/coeficiente_relativo
 
-                gamebola.direcao = 3
+                gamebola.direcao = 2
                 gamebola.coeficiente['y'] = vy
                 return
     

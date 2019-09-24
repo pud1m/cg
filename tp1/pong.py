@@ -5,7 +5,7 @@ import sys
 from objects import Bola, bolaDir, Raquete
 from core import inicializa_jogo
 from colisao import colidiu_com_raquete, handle_colisao
-from utils import centraliza_tela, set_field_size, ReadTexture
+from utils import centraliza_tela, set_field_size, ReadTexture, marca_placar
 from pynput.mouse import Button, Controller
 from math import *
 
@@ -15,8 +15,8 @@ name = b'Thalles Sales - Pong'
 
 #Variáveis globais
 tamanho_bola = 15
-vel_bola = 1
-vel_raquete = 8
+vel_bola = 3
+vel_raquete = 10
 tamanho_raquete = {
     'x': 50,
     'y': 150
@@ -89,19 +89,31 @@ def desenha_cena():
     global gamebola
     global raq1
     global raq2
+    global orthox
+    global orthoy
+    global tamanho_topbar
+    
     glClear(GL_COLOR_BUFFER_BIT)
 
     glPushMatrix()
 
-    glColor3f(1, 1, 1)
+    
 
     #Desenha
+    #glColor3f(1, 0, 1)
+    #desenha_campo()
+
+    glColor3f(1, 1, 1)
     atualiza_pos_raq()
+
+    glColor3f(1, 1, 1)
     desenha_bola()
 
+    glColor3f(1, 1, 1)
     desenha_raquete(raq1)
     desenha_raquete(raq2)
     desenha_placar()
+    marca_placar(0, orthoy+tamanho_topbar-30)
 
     glFlush()
     glPopMatrix()
@@ -120,6 +132,14 @@ def desenha_bola():
     print(px)
     print(py)
 
+    tid = ReadTexture(None, 'bola.jpg')
+
+    glEnable(GL_TEXTURE_2D)
+    glBindTexture(GL_TEXTURE_2D, tid)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0)
+    glEnable(GL_TEXTURE_GEN_S)
+    glEnable(GL_TEXTURE_GEN_T)
 
     lados = 32    
     glBegin(GL_POLYGON)    
@@ -129,6 +149,7 @@ def desenha_bola():
         glVertex3f(va,vb,0)
     glEnd()
 
+    glDisable(GL_TEXTURE_2D)
     return
 
 
@@ -137,15 +158,54 @@ def desenha_placar():
     global orthoy
     global tamanho_topbar
 
-    tid = ReadTexture(None, 'stone.png')
-
+    tid = ReadTexture(None, 'wood_low.jpg')
+    
+    glEnable(GL_TEXTURE_2D)
     glBindTexture(GL_TEXTURE_2D, tid)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0)
+    glEnable(GL_TEXTURE_GEN_S)
+    glEnable(GL_TEXTURE_GEN_T)
+
+
     glBegin(GL_POLYGON)
     glVertex3f(0, orthoy+tamanho_topbar, 0)
     glVertex3f(orthox, orthoy+tamanho_topbar, 0)
     glVertex3f(orthox, orthoy, 0)
     glVertex3f(0, orthoy, 0)
     glEnd()
+
+    glDisable(GL_TEXTURE_2D)
+    return
+
+
+def desenha_campo():
+    global orthox
+    global orthoy
+    global tamanho_topbar
+
+    
+    tid = ReadTexture(None, 'wood_low.jpg')
+
+    glEnable(GL_TEXTURE_2D)
+    glBindTexture(GL_TEXTURE_2D, tid)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+    glEnable(GL_TEXTURE_GEN_S)
+    glEnable(GL_TEXTURE_GEN_T)
+
+
+    glBegin(GL_POLYGON)
+
+    glVertex3f(0, orthoy, 0)
+    glVertex3f(orthox, orthoy, 0)
+    glVertex3f(orthox, 0, 0)
+    glVertex3f(0, 0, 0)
+
+    glEnd()
+
+    glBindTexture(GL_TEXTURE_2D, 0)
+    glDisable(GL_TEXTURE_2D)
     return
 
 
@@ -161,6 +221,7 @@ def desenha_raquete(raq):
     glVertex3f(px+tamanho_raquete['x'], py+tamanho_raquete['y'], 0)
     glVertex3f(px+tamanho_raquete['x'], py, 0)
     glEnd()
+
     return
 
 #####################################
