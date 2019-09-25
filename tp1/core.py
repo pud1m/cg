@@ -16,6 +16,10 @@ class GameCore:
         self.pausado = False
         self.numOfSets = 5
         self.switchSet = False
+        self.storedRaqSpeed = 0
+        self.storedDirection = 0
+        self.winner = 0
+
     
     def playerScored(self, playerFor, playerAgainst):
         if int(self.score[str(playerFor)]) == 9 and int(self.score[str(playerAgainst)]) == 10:
@@ -64,6 +68,8 @@ class GameCore:
         self.troca_lados()
 
         if int(self.sets[str(playerFor)]) + int(self.sets[str(playerAgainst)]) == self.numOfSets:
+            self.winner = playerFor
+            self.pausado = True
             return
         else:
             return
@@ -83,4 +89,22 @@ class GameCore:
         else:
             self.switchSet = True
 
+        return
+
+    def reset_game(self):
+        self.score = {
+            '1': 0,
+            '2': 0,
+        }
+        self.sets = {
+            '1': 0,
+            '2': 0,
+        }
+        self.deuce = False
+        self.pausado = False
+        self.numOfSets = 5
+        self.switchSet = False
+        self.storedRaqSpeed = 0
+        self.storedDirection = 0
+        self.winner = 0
         return

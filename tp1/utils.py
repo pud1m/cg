@@ -5,6 +5,8 @@ import numpy
 from PIL import Image
 import os
 import ctypes
+from core import GameCore
+from objects import Bola
 
 def centraliza_tela(screen, orthox, orthoy):
     
@@ -121,17 +123,42 @@ def notice_center(orthox, orthoy, texto):
     byte_size = len(stringa)
     string = (ctypes.c_ubyte * byte_size).from_buffer_copy(stringa)
 
-    glutBitmapLength(GLUT_BITMAP_HELVETICA_18, string)
+    glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, string)
 
-    glRasterPos2f(orthox/2, orthoy/2)
+    glRasterPos2f(orthox/2-len(stringa), orthoy/2)
 
     for c in string:
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c)
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, c)
         
 
 
 ##############################
-# Utils para reinício/pause
+# Callbacks para reinício/pause
 
-def restart_jogo(core, raq1, ra2, bola):
+def pause_jogo(core, raq1, raq2, gamebola):
+
+    if not core.pausado:
+
+        core.storedRaqSpeed = raq1.velocidade
+        core.storedDirection = gamebola.direcao
+
+        raq1.velocidade = 0
+        raq2.velocidade = 0
+        gamebola.direcao = 0
+        core.pausado = True
+
+    else:
+
+        raq1.velocidade = core.storedRaqSpeed
+        raq2.velocidade = core.storedRaqSpeed
+        gamebola.direcao = core.storedDirection
+
+        core.pausado = False
+
+    return
+
+def restart_jogo(core, gamebola):
+    core.reset_game()
+    gamebola.resetar()
+
     return
