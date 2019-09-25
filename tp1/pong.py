@@ -3,9 +3,9 @@ from OpenGL.GLU import *
 from OpenGL.GL import *
 import sys
 from objects import Bola, bolaDir, Raquete
-from core import inicializa_jogo
+from core import GameCore
 from colisao import colidiu_com_raquete, handle_colisao
-from utils import centraliza_tela, set_field_size, ReadTexture, marca_placar
+from utils import centraliza_tela, set_field_size, ReadTexture, marca_placar, ReadTextureTile
 from pynput.mouse import Button, Controller
 from math import *
 
@@ -14,9 +14,9 @@ from math import *
 name = b'Thalles Sales - Pong'
 
 #Variáveis globais
-tamanho_bola = 15
-vel_bola = 3
-vel_raquete = 10
+tamanho_bola = 25
+vel_bola = 40
+vel_raquete = 30
 tamanho_raquete = {
     'x': 50,
     'y': 150
@@ -25,8 +25,8 @@ tamanho_topbar = 100
 
 # Tela
 screen = { # Resolução do dispositivo
-    'x': 1366,
-    'y': 768
+    'x': 1920,
+    'y': 1080
 }
 
 # Campo
@@ -43,7 +43,10 @@ raq1 = Raquete(5,0, vel_raquete)
 raq2 = Raquete(orthox-5-tamanho_raquete['x'],0, vel_raquete)
 
 # Inicializa a bola
-gamebola = Bola(orthox/2,(orthoy)/2, 5)
+gamebola = Bola(orthox/2,(orthoy)/2, vel_bola)
+
+# Inicializa o GameCore
+core = GameCore()
 
 # Dict com os botões pressionados
 botoes = {
@@ -99,32 +102,56 @@ def desenha_cena():
 
     
 
-    #Desenha
-    #glColor3f(1, 0, 1)
-    #desenha_campo()
+    ############# Desenha
 
+    # Campo
+    glColor3f(1, 1, 1)
+    desenha_campo()
+
+    # Linhas no campo
+    glColor3f(1, 1, 1)
+    desenha_linhas()
+
+    # Posiciona raquetes
     glColor3f(1, 1, 1)
     atualiza_pos_raq()
 
+    # Bola
     glColor3f(1, 1, 1)
     desenha_bola()
 
+    # Raquetes
     glColor3f(1, 1, 1)
     desenha_raquete(raq1)
     desenha_raquete(raq2)
+
+    # Placar
     desenha_placar()
 
     # Texto com título dos jogadores
-    marca_placar(orthox*0.01, orthoy+tamanho_topbar-30, str('Jogador 1'))
-    marca_placar(orthox*0.9, orthoy+tamanho_topbar-30, str('Jogador 2'))
+    if not core.switchSet:
+        marca_placar(orthox*0.01, orthoy+tamanho_topbar-30, str('Jogador 1'))
+        marca_placar(orthox*0.9, orthoy+tamanho_topbar-30, str('Jogador 2'))
+    else:
+        marca_placar(orthox*0.01, orthoy+tamanho_topbar-30, str('Jogador 2'))
+        marca_placar(orthox*0.9, orthoy+tamanho_topbar-30, str('Jogador 1'))
+
 
     # Pontuação dos jogadores no set
-    marca_placar(orthox*0.01, orthoy+tamanho_topbar-60, str('Pontos: 10'))
-    marca_placar(orthox*0.9, orthoy+tamanho_topbar-60, str('Pontos: 10'))
+    marca_placar(orthox*0.01, orthoy+tamanho_topbar-60, str('Pontos: ' + str(core.score['1'])))
+    marca_placar(orthox*0.9, orthoy+tamanho_topbar-60, str('Pontos: ' + str(core.score['2'])))
 
     # Contador de sets
-    marca_placar(orthox*0.01, orthoy+tamanho_topbar-90, str('Sets: 10'))
-    marca_placar(orthox*0.9, orthoy+tamanho_topbar-90, str('Sets: 10'))
+    marca_placar(orthox*0.01, orthoy+tamanho_topbar-90, str('Sets: ' + str(core.sets['1'])))
+    marca_placar(orthox*0.9, orthoy+tamanho_topbar-90, str('Sets: ' + str(core.sets['2'])))
+
+    # Máximo de set
+    marca_placar(orthox*0.5, orthoy+tamanho_topbar-60, str('Melhor de ' + str(core.numOfSets)))
+
+    # Indicador de deuce
+    if core.deuce:
+        marca_placar(orthox*0.5, orthoy+tamanho_topbar-90, str('Deuce'))
+    
 
     glFlush()
     glPopMatrix()
@@ -135,6 +162,8 @@ def desenha_cena():
 def desenha_bola():
     global tamanho_bola
     global gamebola
+    global orthox
+    global orthoy
 
     px = gamebola.x
     py = gamebola.y
@@ -142,6 +171,16 @@ def desenha_bola():
     print('render bola')
     print(px)
     print(py)
+
+
+    if px > orthox /2:
+        ortho_prop = px/orthox
+        tamanho_custom = tamanho_bola*ortho_prop
+    else:
+        ortho_prop = (orthox-px)/orthox
+        tamanho_custom = tamanho_bola*ortho_prop
+
+
 
     tid = ReadTexture(None, 'bola.jpg')
 
@@ -154,9 +193,9 @@ def desenha_bola():
 
     lados = 32    
     glBegin(GL_POLYGON)    
-    for i in range(100):    
-        va = tamanho_bola * cos(i*2*pi/lados) + px    
-        vb = tamanho_bola * sin(i*2*pi/lados) + py    
+    for i in range(200):    
+        va = tamanho_custom * cos(i*2*pi/lados) + px    
+        vb = tamanho_custom * sin(i*2*pi/lados) + py    
         glVertex3f(va,vb,0)
     glEnd()
 
@@ -169,12 +208,11 @@ def desenha_placar():
     global orthoy
     global tamanho_topbar
 
-    tid = ReadTexture(None, 'wood_low.jpg')
+    tid = ReadTextureTile(None, 'wood_low.jpg')
     
-    glEnable(GL_TEXTURE_2D)
+    
     glBindTexture(GL_TEXTURE_2D, tid)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0)
+    #glEnable(GL_TEXTURE_2D)
     glEnable(GL_TEXTURE_GEN_S)
     glEnable(GL_TEXTURE_GEN_T)
 
@@ -186,7 +224,7 @@ def desenha_placar():
     glVertex3f(0, orthoy, 0)
     glEnd()
 
-    glDisable(GL_TEXTURE_2D)
+    #glDisable(GL_TEXTURE_2D)
     return
 
 
@@ -196,12 +234,12 @@ def desenha_campo():
     global tamanho_topbar
 
     
-    tid = ReadTexture(None, 'wood_low.jpg')
+    tid = ReadTexture(None, 'grass2.jpg')
 
     glEnable(GL_TEXTURE_2D)
     glBindTexture(GL_TEXTURE_2D, tid)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0)
     glEnable(GL_TEXTURE_GEN_S)
     glEnable(GL_TEXTURE_GEN_T)
 
@@ -220,12 +258,84 @@ def desenha_campo():
     return
 
 
+def desenha_linhas():
+    global orthox
+    global orthoy
+
+    # Topo
+    glBegin(GL_POLYGON)
+    glVertex3f(100, orthoy-100, 0)
+    glVertex3f(orthox-100, orthoy-100, 0)
+    glVertex3f(orthox-100, orthoy-110, 0)
+    glVertex3f(100, orthoy-110, 0)
+    glEnd()
+
+    # Baixo
+    glBegin(GL_POLYGON)
+    glVertex3f(100, 100, 0)
+    glVertex3f(orthox-100, 100, 0)
+    glVertex3f(orthox-100, 110, 0)
+    glVertex3f(100, 110, 0)
+    glEnd()
+
+    # Esquerda
+    glBegin(GL_POLYGON)
+    glVertex3f(100, orthoy-100, 0)
+    glVertex3f(110, orthoy-100, 0)
+    glVertex3f(110, 100, 0)
+    glVertex3f(100, 100, 0)
+    glEnd()
+
+    # Direita
+    glBegin(GL_POLYGON)
+    glVertex3f(orthox-110, orthoy-100, 0)
+    glVertex3f(orthox-100, orthoy-100, 0)
+    glVertex3f(orthox-100, 100, 0)
+    glVertex3f(orthox-110, 100, 0)
+    glEnd()
+
+    # Esquerda centro
+    glBegin(GL_POLYGON)
+    glVertex3f(orthox/2-orthox/4, orthoy-100, 0)
+    glVertex3f(orthox/2-orthox/4+10, orthoy-100, 0)
+    glVertex3f(orthox/2-orthox/4+10, 100, 0)
+    glVertex3f(orthox/2-orthox/4, 100, 0)
+    glEnd()
+
+    # Direita centro
+    glBegin(GL_POLYGON)
+    glVertex3f(orthox/2+orthox/4, orthoy-100, 0)
+    glVertex3f(orthox/2+orthox/4+10, orthoy-100, 0)
+    glVertex3f(orthox/2+orthox/4+10, 100, 0)
+    glVertex3f(orthox/2+orthox/4, 100, 0)
+    glEnd()
+
+    # Linha do meio
+    glBegin(GL_POLYGON)
+    glVertex3f(orthox/2-orthox/4, orthoy/2-5, 0)
+    glVertex3f(orthox/2+orthox/4, orthoy/2-5, 0)
+    glVertex3f(orthox/2+orthox/4, orthoy/2+5, 0)
+    glVertex3f(orthox/2-orthox/4, orthoy/2+5, 0)
+    glEnd()
+
+    return
+
+
 def desenha_raquete(raq):
     global tamanho_raquete
 
     px = raq.x
     py = raq.y
 
+    tid = ReadTexture(None, 'wood_low.jpg')
+
+    glEnable(GL_TEXTURE_2D)
+    glBindTexture(GL_TEXTURE_2D, tid)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0)
+    glEnable(GL_TEXTURE_GEN_S)
+    glEnable(GL_TEXTURE_GEN_T)
+    
     glBegin(GL_POLYGON)
     glVertex3f(px, py, 0)
     glVertex3f(px, py+tamanho_raquete['y'], 0)
@@ -233,6 +343,8 @@ def desenha_raquete(raq):
     glVertex3f(px+tamanho_raquete['x'], py, 0)
     glEnd()
 
+
+    glDisable(GL_TEXTURE_2D)
     return
 
 #####################################
@@ -352,17 +464,18 @@ def checa_colisao():
     global tamanho_bola
     global orthox
     global orthoy
+    global core
     
     ################################################
     ####### Colisão com a raquete
     # Esquerda/direita
-    if 0 < gamebola.x <= tamanho_raquete['x']: # bola na esquerda
+    if 0 < gamebola.x <= tamanho_raquete['x']*1.2: # bola na esquerda
         if colidiu_com_raquete(raq1, gamebola, tamanho_raquete):
             if gamebola.direcao == 1 or gamebola.direcao == 2 or gamebola.direcao == 3:
                 handle_colisao(raq1, gamebola, tamanho_raquete, orthox, orthoy, tamanho_bola, 'side')
                 return
         
-    if orthox - tamanho_raquete['x'] - tamanho_bola < gamebola.x + tamanho_bola >= orthox - tamanho_raquete['x']: # bola na direita
+    if orthox - tamanho_raquete['x']*1.2 - tamanho_bola < gamebola.x + tamanho_bola >= orthox - tamanho_raquete['x']*1.2: # bola na direita
         if colidiu_com_raquete(raq2, gamebola, tamanho_raquete):
             if gamebola.direcao == 4 or gamebola.direcao == 5 or gamebola.direcao == 6:
                 handle_colisao(raq2, gamebola, tamanho_raquete, orthox, orthoy, tamanho_bola, 'side')
@@ -382,10 +495,13 @@ def checa_colisao():
     if gamebola.x <= 0: # Bola na esquerda
         gamebola.resetar()
         gamebola.direcao = 4
+        core.playerScored(2,1)
+
     
     if gamebola.x >= orthox: # Bola na direita
         gamebola.resetar()
         gamebola.direcao = 1
+        core.playerScored(1,2)
 
     return
 
