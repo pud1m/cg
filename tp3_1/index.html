@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Resultados do ray tracer</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+        body {
+            margin: 0;
+            overflow-x: hidden;
+        }
+        .card {
+            position: relative;
+            min-width: 300px;
+            box-sizing: border-box;
+        }
+        .card .diff {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+        }
+        .card:hover .diff {
+            opacity: 1;
+        }
+        .card:nth-of-type(2) {
+            cursor: crosshair;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-light bg-light">
+            <span class="navbar-brand mb-0 h1">Resultados do ray tracer</span>
+            <span class="navbar-text">
+                <strong>Alunos:</strong><br> <span id="alunos"></span>
+            </span>
+            <span class="navbar-text">
+                <strong>Linguagem:</strong><br> <span id="linguagem"></span>
+            </span>
+        </nav>
+    </header>
+    <main class="container-fluid">
+        <div class="row">
+            <div class="card-deck col-xl">
+                <div class="card">
+                    <img src="cena-simples.png" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title"><code>cena-simples.txt</code></h5>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="cena-simples-objetivo.png" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title">Objetivo <small class="diff-pixels"></small></h5>
+                    </div>
+                </div>
+            </div>
+            <div class="card-deck col-xl">
+                <div class="card">
+                    <img src="cena-primitivas.png" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title"><code>cena-primitivas.txt</code></h5>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="cena-primitivas-objetivo.png" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title">Objetivo <small class="diff-pixels"></small></h5>
+                    </div>
+                </div>
+            </div>
+            <div class="card-deck col-xl">
+                <div class="card">
+                    <img src="cena-2-fontes-luz.png" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title"><code>cena-2-fontes-luz.txt</code></h5>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="cena-2-fontes-luz-objetivo.png" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title">Objetivo <small class="diff-pixels"></small></h5>
+                    </div>
+                </div>
+            </div>
+            <div class="card-deck col-xl">
+                <div class="card">
+                    <img src="cena-arvore.png" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title"><code>cena-arvore.txt</code></h5>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="cena-arvore-objetivo.png" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title">Objetivo <small class="diff-pixels"></small></h5>
+                    </div>
+                </div>
+            </div>
+            <div class="card-deck col-xl">
+                <div class="card">
+                    <img src="cena-empilhadas.png" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title"><code>cena-empilhadas.txt</code></h5>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="cena-empilhadas-objetivo.png" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title">Objetivo <small class="diff-pixels"></small></h5>
+                    </div>
+                </div>
+            </div>
+            <div class="card-deck col-xl">
+                <div class="card">
+                    <img src="cena-whitted.png" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title"><code>cena-whitted.txt</code></h5>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="cena-whitted-objetivo.png" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title">Objetivo <small class="diff-pixels"></small></h5>
+                    </div>
+                </div>
+            </div>
+            <div class="card-deck col-xl">
+                <div class="card">
+                    <img src="cena-cornell-box.png" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title"><code>cena-cornell-box.txt</code></h5>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="cena-cornell-box-objetivo.png" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title">Objetivo <small class="diff-pixels"></small></h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <aside style="position: fixed; right: 1rem; bottom: 1rem;">
+        <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <span class="rounded mr-2 toast-icon"></span>
+                <strong class="mr-auto toast-title"></strong>
+                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="toast-body">
+            </div>
+        </div>
+    </aside>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+    <script src="https://bundle.run/pixelmatch"></script>
+    <script>
+        function mostraErro(mensagem) {
+            const $toast = $('.toast')
+            $toast.find('.toast-icon').html('⚠️');
+            $toast.find('.toast-title').html('Erro');
+            $toast.find('.toast-body').html(mensagem);
+            $toast.toast('show');
+        }
+
+        function erroNoJson(erro) {
+            mostraErro('Houve um erro ao carregar o arquivo <code>autores.json</code>: <pre style="white-space: pre-wrap">' + erro + '</pre>');
+        }
+        
+        function erroDesconhecido(erro) {
+            mostraErro('Houve um erro desconhecido: <pre style="white-space: pre-wrap">' + erro + '</pre>');
+        }
+
+        function imagemParaCanvas($el) {
+            const canvasEl = document.createElement('canvas');
+            canvasEl.classList.add('card-img-top');
+            canvasEl.width = $el.width();
+            canvasEl.height = $el.height();
+            const ctx = canvasEl.getContext('2d');
+            ctx.drawImage($el[0], 0, 0, $el.width(), $el.height());
+            $el.replaceWith(canvasEl);
+
+            return { canvasEl, ctx };
+        }
+
+        function montarPagina(resposta) {
+            $('#alunos').html(resposta.autores.join(', '));
+            $('#linguagem').html(resposta.linguagem);
+            return Promise.resolve();
+        }
+
+
+        $('.card-deck').each((i, el) => {
+            const $imagemDoAluno = $(el).find('.card').first().find('img');
+            const $imagemDoObjetivo = $(el).find('.card').last().find('img');
+            const largura = Math.floor($imagemDoObjetivo.width());
+            const altura = Math.floor($imagemDoObjetivo.height());
+            const canvasDoAluno = imagemParaCanvas($imagemDoAluno);
+            const canvasDoObjetivo = imagemParaCanvas($imagemDoObjetivo);
+            const canvasDoDiff = document.createElement('canvas');
+            canvasDoDiff.width = largura;
+            canvasDoDiff.height = altura;
+            canvasDoDiff.classList.add('card-img-top');
+            canvasDoDiff.classList.add('diff');
+            const diffCtx = canvasDoDiff.getContext('2d');
+            const diff = diffCtx.createImageData(largura, altura);
+
+            const pixelsDiferentes = pixelmatch(
+                canvasDoAluno.ctx.getImageData(0, 0, largura, altura).data,
+                canvasDoObjetivo.ctx.getImageData(0, 0, largura, altura).data,
+                diff.data,
+                largura, altura,
+                { 
+                    threshold: 0
+                }
+            );
+
+            diffCtx.putImageData(diff, 0, 0);
+            $(el).find('.card').last().prepend(canvasDoDiff);
+            const porcentagemDiferenca = (100 * pixelsDiferentes / (largura * altura));
+
+            $(el).find('.card').last().find('.diff-pixels')
+                .addClass('float-right')
+                .html(`<span>${porcentagemDiferenca.toFixed(2)}%</span> pixels diferentes`)
+                .find('span')
+                .addClass(porcentagemDiferenca < 0.05 ? 'text-primary' : 'text-danger')
+        });
+        $('.toast').toast({ delay: 6000 });
+        fetch('./autores.json')
+            .then(r => r.json(), erroNoJson)
+            .then(montarPagina, erroDesconhecido)
+            .catch(erroDesconhecido)
+    </script>
+</body>
+</html>
